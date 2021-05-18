@@ -12,7 +12,7 @@ def monitor():
         last_idle, last_total = idle, total
         utilisation = (1.0 - idle_delta / total_delta)
         print('%5.1f%%,%d' % (100.0*utilisation,int(round(time() * 1000))) )
-        sleep(5)
+        sleep(3)
 
 def main():    
 
