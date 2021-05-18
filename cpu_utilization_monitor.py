@@ -15,12 +15,7 @@ def monitor():
         sleep(5)
 
 def main():    
-    s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    s.bind(('10.156.0.7', 11211))
-    s.listen(5)
-    print('Waiting for connection...')
-    sock, addr = s.accept()
-    sock.close()
+
     monitor()
 
 if __name__ == "__main__":
