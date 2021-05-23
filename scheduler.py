@@ -41,6 +41,7 @@ import docker
 import psutil
 import time
 import sys
+from subprocess import check_output
 
 # Define global variables
 scheduler_interval = 1000
@@ -81,7 +82,10 @@ class memcached(object):
         self.memca_counter_thrd = 5
         self.memca_used_cpu = 1
         self.pid = 0
-
+    
+    def get_pid(self):
+        self.pid = map(int,check_output(["pidof","memcached"]).split())
+    
     def cpu_util(self, interval=None):
         cpu_util_list = psutil.cpu_percent(interval=interval, percpu=True)
         temp = sum(cpu_util_list[:self.memca_used_cpu])
@@ -163,8 +167,8 @@ class parsec(object):
         self.PARSEC_JOB_C2 = ["blackscholes", "freqmine","ferret"]
         self.C2_running_app = " "
         self.C1_running_app = " "
-        self.C1_container
-        self.C2_container
+        self.C1_container = 0
+        self.C2_container = 0
     
     def schedule_update(self):
         global parsec_available_cpu,memca_need_more
@@ -289,7 +293,7 @@ cpu_log_file = CPU_STAT(cpu_util_log)
 memca_stat = memcached()
 parsec_stat = parsec()
 # Set memcache PID  
-memca_stat.pid = os.system("pidof memcached")
+#memca_stat.pid = os.system("pidof memcached")
 
 #sys.stderr = Logger('error_file', sys.stderr)
 
@@ -299,6 +303,7 @@ memca_stat.pid = os.system("pidof memcached")
 
 def cpu_util():
     """ This function will return cpu utilization """
+    global last_idle,last_total
     with open('/proc/stat') as f:
         fields = [float(column) for column in f.readline().strip().split()[1:]]
     idle, total = fields[3], sum(fields)
