@@ -288,7 +288,7 @@ class CPU_STAT(object):
         self.cpu_log.close()
 
 # Create class instances
-sys.stdout = Logger(log_file, sys.stdout)
+#sys.stdout = Logger(log_file, sys.stdout)
 cpu_log_file = CPU_STAT(cpu_util_log)
 memca_stat = memcached()
 parsec_stat = parsec()
