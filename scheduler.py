@@ -172,11 +172,13 @@ class parsec(object):
         global parsec_available_cpu,memca_need_more,memca_cpu_add_lock
         print(self.PARSEC_JOB_C1)
         print(self.PARSEC_JOB_C2)
-        
+
         if(self.C1_container):
             self.C1_container.reload()
+            print(self.C1_container.status)
         if(self.C2_container):
             self.C2_container.reload()
+            print(self.C2_container.status)
 
         if (len(self.PARSEC_JOB_C1) and len(self.PARSEC_JOB_C2)):
             # If C1 and C2 list are not empty first check C2
