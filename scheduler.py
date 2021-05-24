@@ -77,9 +77,9 @@ class memcached(object):
         self.memca_cpu_utilization_new = 0
         self.memca_up_counter = 0
         self.memca_down_counter = 0
-        self.memca_down_add_thr = 5
-        self.memca_up_add_thr = 5
-        self.memca_counter_thrd = 5
+        self.memca_down_add_thr = 3
+        self.memca_up_add_thr = 3
+        self.memca_counter_thrd = 3
         self.memca_used_cpu = 1
         self.pid = os.popen("pidof memcached").read()
     
@@ -373,7 +373,7 @@ while True:
     if (global_counter % scheduler_interval == 0):
         global_counter = 0
         # Update Memcache resource constraint
-        memca_stat.cpu_util()
+        memca_stat.cpu_util(interval=0.5)
         memca_stat.resource_set()
         # Update PARSEC Containers accordingly
         parsec_stat.schedule_update()
