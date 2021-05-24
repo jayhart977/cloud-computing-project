@@ -70,9 +70,9 @@ client = docker.from_env()
 class memcached(object):
     def __init__(self):
         # This part defines scheduling strategies for memcached, please test and change accordingly
-        self.memca_lower_bound = 30
-        self.memca_change_bound = 50
-        self.memca_upper_bound = 70
+        self.memca_lower_bound = 20
+        self.memca_change_bound = 30
+        self.memca_upper_bound = 45
         self.memca_cpu_utilization_last = 0
         self.memca_cpu_utilization_new = 0
         self.memca_up_counter = 0
