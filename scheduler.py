@@ -213,6 +213,8 @@ class parsec(object):
                 self.PARSEC_JOB_C1.remove(self.C1_running_app)
                 if(memca_need_more):
                     # If memcache need more resource
+                    self.C1_running_app = " "
+                    self.C1_container = 0
                     memca_need_more = 0
                     memca_stat.resource_set()
                 elif (len(self.PARSEC_JOB_C1)):
