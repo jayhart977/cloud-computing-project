@@ -170,6 +170,8 @@ class parsec(object):
     
     def schedule_update(self):
         global parsec_available_cpu,memca_need_more,memca_cpu_add_lock
+        print(self.PARSEC_JOB_C1)
+        print(self.PARSEC_JOB_C2)
         if (len(self.PARSEC_JOB_C1) and len(self.PARSEC_JOB_C2)):
             # If C1 and C2 list are not empty first check C2
             if (self.C2_running_app == " "):
