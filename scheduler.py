@@ -88,7 +88,7 @@ class memcached(object):
         temp = sum(cpu_util_list[:self.memca_used_cpu])
         # Write to cpu_util.log
         #cpu_log_file.write(time.asctime(time.localtime()))
-        cpu_log_file.write(int(round(time.time() * 1000)))
+        cpu_log_file.write(str(int(round(time.time() * 1000))))
         cpu_log_file.write(str(cpu_util_list))
         self.memca_cpu_utilization_new = temp / self.memca_used_cpu
         diff = self.memca_cpu_utilization_new - self.memca_cpu_utilization_last
