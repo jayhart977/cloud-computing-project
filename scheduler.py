@@ -326,7 +326,7 @@ def init():
     print("######### Start pulling all needed images #########")
     print(" Start Time:", time.strftime("%a %b %d %H:%M:%S %Y", time.localtime()))
     start_time = time.time()
-    os.system("./image_pull.sh")
+    os.system("sudo ./image_pull.sh")
     print(" \nAll images pulled, time used : %f s\n"%(start_time - time.time()))
 
     # Initiate psutil cpu stats and write it to log file
