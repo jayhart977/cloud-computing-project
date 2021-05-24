@@ -87,7 +87,8 @@ class memcached(object):
         cpu_util_list = psutil.cpu_percent(interval=interval, percpu=True)
         temp = sum(cpu_util_list[:self.memca_used_cpu])
         # Write to cpu_util.log
-        cpu_log_file.write(time.asctime(time.localtime()))
+        #cpu_log_file.write(time.asctime(time.localtime()))
+        cpu_log_file.write(int(round(time.time() * 1000)))
         cpu_log_file.write(str(cpu_util_list))
         self.memca_cpu_utilization_new = temp / self.memca_used_cpu
         diff = self.memca_cpu_utilization_new - self.memca_cpu_utilization_last
@@ -168,7 +169,7 @@ class parsec(object):
         self.C2_container = 0
     
     def schedule_update(self):
-        global parsec_available_cpu,memca_need_more
+        global parsec_available_cpu,memca_need_more,memca_cpu_add_lock
         if (len(self.PARSEC_JOB_C1) and len(self.PARSEC_JOB_C2)):
             # If C1 and C2 list are not empty first check C2
             if (self.C2_running_app == " "):
