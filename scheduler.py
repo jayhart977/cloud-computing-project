@@ -41,7 +41,7 @@ import docker
 import psutil
 import time
 import sys
-from subprocess import check_output
+import subprocess
 
 # Define global variables
 scheduler_interval = 1000
@@ -81,10 +81,7 @@ class memcached(object):
         self.memca_up_add_thr = 5
         self.memca_counter_thrd = 5
         self.memca_used_cpu = 1
-        self.pid = 0
-    
-    def get_pid(self):
-        self.pid = map(int,check_output(["pidof","memcached"]).split())
+        self.pid = os.popen("pidof memcached").read()
     
     def cpu_util(self, interval=None):
         cpu_util_list = psutil.cpu_percent(interval=interval, percpu=True)
@@ -110,9 +107,9 @@ class memcached(object):
         'This function is used to schedule memcache workload'
         if (self.memca_cpu_utilization_new >= self.memca_upper_bound):
             # If cpu_util is larger than upper bound
-            global parsec_available_cpu
+            global parsec_available_cpu,memca_need_more,parsec_more_flag
             if (~(memca_cpu_add_lock) and (self.memca_used_cpu == 1)):
-                memcached_resource_set("0-1", self.pid)
+                memcached_resource_set("0,1", self.pid)
                 parsec_available_cpu -= 1
                 self.memca_used_cpu += 1
                 memca_need_more = 0
@@ -135,7 +132,7 @@ class memcached(object):
         elif ((self.memca_up_counter > self.memca_counter_thrd) and (self.memca_cpu_utilization_new >= self.memca_change_bound)):
             # Up Counter reaches thre
             if (~(memca_cpu_add_lock) and (self.memca_used_cpu == 1)):
-                memcached_resource_set("0-1", self.pid)
+                memcached_resource_set("0,1", self.pid)
                 parsec_available_cpu -= 1
                 self.memca_used_cpu += 1
                 memca_need_more = 0
@@ -326,7 +323,7 @@ def init():
     print("######### Start pulling all needed images #########")
     print(" Start Time:", time.strftime("%a %b %d %H:%M:%S %Y", time.localtime()))
     start_time = time.time()
-    os.system("sudo ./image_pull.sh")
+    os.system("sh image_pull.sh")
     print(" \nAll images pulled, time used : %f s\n"%(start_time - time.time()))
 
     # Initiate psutil cpu stats and write it to log file
@@ -350,8 +347,9 @@ def memcached_resource_set(core_id, pid):
         For example:
         coreid = "0-2", pid = "128"
     """
-    command = "taskset -a -cp" + " " + core_id + " " + pid
-    os.system(command)
+
+    command = "sudo taskset -a -cp " + core_id  + " " + pid
+    subprocess.run(command,shell=True)
 
 def check_container_log(container_id):
     container = client.container.get(container_id)

@@ -5,22 +5,22 @@
 echo "Start pulling PARSEC container images"
 
 echo "Pulling splash2x.fft image"
-docker pull anakli/parsec:splash2x-fft-native-reduced
+sudo docker pull anakli/parsec:splash2x-fft-native-reduced
 
 echo "Pulling freqmine image"
-docker pull anakli/parsec:freqmine-native-reduced
+sudo docker pull anakli/parsec:freqmine-native-reduced
 
 echo "Pulling ferret image"
-docker pull anakli/parsec:ferret-native-reduced
+sudo docker pull anakli/parsec:ferret-native-reduced
 
 echo "Pulling canneal image"
-docker pull anakli/parsec:canneal-native-reduced
+sudo docker pull anakli/parsec:canneal-native-reduced
 
 echo "Pulling dedup image"
-docker pull anakli/parsec:dedup-native-reduced
+sudo docker pull anakli/parsec:dedup-native-reduced
 
 echo "Pulling blackscholes"
-docker pull anakli/parsec:blackscholes-native-reduced
+sudo docker pull anakli/parsec:blackscholes-native-reduced
 
 
 
