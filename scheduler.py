@@ -360,6 +360,7 @@ def check_container_log(container_id):
 
 def spin_up_container(img_name, core_id, container_name, command):
     'This function is used to spin up containers'
+    print("start container",container_name)
     container = client.containers.run(img_name, command,cpuset_cpus=core_id, name=container_name, auto_remove=False, detach=True)
     return container
 
