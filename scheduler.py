@@ -69,13 +69,13 @@ class memcached(object):
         # This part defines scheduling strategies for memcached, please test and change accordingly
         self.memca_lower_bound = 30
         self.memca_change_bound = 50
-        self.memca_upper_bound = 70
+        self.memca_upper_bound = 75
         self.memca_cpu_utilization_last = 0
         self.memca_cpu_utilization_new = 0
         self.memca_up_counter = 0
         self.memca_down_counter = 0
-        self.memca_down_add_thr = 3
-        self.memca_up_add_thr = 3
+        self.memca_down_add_thr = 5
+        self.memca_up_add_thr = 5
         self.memca_counter_thrd = 3
         self.memca_used_cpu = 1
         self.pid = os.popen("pidof memcached").read()
@@ -183,7 +183,9 @@ class parsec(object):
             elif (self.C2_container.status == 'exited'):
                 # C2 container has finished
                 # First remove corresponding app in C2_list
+                print("container %s exited at %d"%(self.C1_running_app,int(round(time.time() * 1000))))
                 self.PARSEC_JOB_C2.remove(self.C2_running_app)
+                
                 if (len(self.PARSEC_JOB_C2)):
                     # Still some app remained in C2_list, spawn one of them
                     self.C2_running_app = self.PARSEC_JOB_C2[0]
@@ -201,6 +203,7 @@ class parsec(object):
 
             elif (self.C1_container.status == 'exited'):
                 # Remove corresponding app from C1_list
+                print("container %s exited at %d"%(self.C1_running_app,int(round(time.time() * 1000))))
                 self.PARSEC_JOB_C1.remove(self.C1_running_app)
                 if(~parsec_available_cpu):
                     # If no spare cpu
