@@ -47,11 +47,8 @@ import subprocess
 scheduler_interval = 1000
 last_idle = 0
 last_total = 0
-memca_need_more = 0 # This variable is used to untie difficult situation
-memca_cpu_add_lock = 0 # Used to indicate whether another cpu can be allocated or not
-parsec_more_flag = 1 # This variable defines whether parsec can have more cpu
 global_counter = 0 # Used for scheduler interval
-parsec_available_cpu = 3 # Number of cpus that can be used by parsec jobs
+parsec_available_cpu = 1 # Number of cpus that can be used by parsec jobs
 
 ## DICT follows the following convetion: ('image_name', 'container_name', 'command')
 PARSEC_DICT = {
@@ -83,6 +80,9 @@ class memcached(object):
         self.memca_used_cpu = 1
         self.pid = os.popen("pidof memcached").read()
     
+    def mem_cpu_allocation_logger(self,cpu_file):
+        cpu_file.write("%d cpu allocated to memcached at %d"%(self.memca_used_cpu,int(round(time.time() * 1000))))
+
     def cpu_util(self, interval=None):
         cpu_util_list = psutil.cpu_percent(interval=interval, percpu=True)
         temp = sum(cpu_util_list[:self.memca_used_cpu])
@@ -114,6 +114,7 @@ class memcached(object):
                     parsec_stat.C1_container.reload()
                     if (parsec_stat.C1_container.status == 'running'):
                         parsec_stat.C1_container.pause()
+                        print("pause container %s at %d"%(parsec_stat.C1_running_app,int(round(time.time() * 1000))))
                 memcached_resource_set("0,1", self.pid)
                 parsec_available_cpu = 0
                 self.memca_used_cpu += 1
@@ -133,6 +134,7 @@ class memcached(object):
                 parsec_stat.C1_container.reload()
                 if (parsec_stat.C1_container.status == 'running'):
                     parsec_stat.C1_container.pause()
+                    print("pause container %s at %d"%(parsec_stat.C1_running_app,int(round(time.time() * 1000))))
                 memcached_resource_set("0,1", self.pid)
                 parsec_available_cpu = 0
                 self.memca_used_cpu += 1
@@ -161,16 +163,16 @@ class parsec(object):
         self.C2_container = 0
     
     def schedule_update(self):
-        global parsec_available_cpu,memca_need_more,memca_cpu_add_lock
-        print(self.PARSEC_JOB_C1)
-        print(self.PARSEC_JOB_C2)
+        global parsec_available_cpu
+        #print(self.PARSEC_JOB_C1)
+        #print(self.PARSEC_JOB_C2)
 
         if(self.C1_container):
             self.C1_container.reload()
-            print(self.C1_container.status)
+            #print(self.C1_container.status)
         if(self.C2_container):
             self.C2_container.reload()
-            print(self.C2_container.status)
+            #print(self.C2_container.status)
 
         if (len(self.PARSEC_JOB_C2)):
             # If C1 and C2 list are not empty first check C2
@@ -213,20 +215,18 @@ class parsec(object):
                 if(parsec_available_cpu):
                     # If there is a spare cpu
                     self.C1_container.unpause()
+                    print("unpause container %s at %d"%(self.C1_running_app,int(round(time.time() * 1000))))
 
 
 
 # Define Logger class to obtain log file for this run
-run_start_time = time.localtime()
-log_name = time.asctime(run_start_time)
-log_name = log_name.replace(' ', '_')
-log_name = log_name.replace(':', '_')
-log_file = log_name + ".log"
-cpu_util_log = "CPU_UTIL" + log_name + ".log"
+cpu_util_log = "CPU_UTIL" + ".log"
+mem_cpu_log = "MEM_CPU" + ".log"
+log_file = "logger.log"
 
 class Logger(object):
-    def __init__(self, filename='default.log', stream=sys.stdout):
-        self.terminal = stream
+    def __init__(self, filename='default.log'):
+        self.terminal = sys.stdout
         self.log = open(filename, 'w')
 
     def write(self, message):
@@ -236,7 +236,7 @@ class Logger(object):
     def flush(self):
         pass
 
-class CPU_STAT(object):
+class STAT(object):
     def __init__(self, filename='default_cpu_util.log'):
         self.cpu_log = open(filename, 'w')
     
@@ -248,8 +248,9 @@ class CPU_STAT(object):
         self.cpu_log.close()
 
 # Create class instances
-#sys.stdout = Logger(log_file, sys.stdout)
-cpu_log_file = CPU_STAT(cpu_util_log)
+sys.stdout = Logger(log_file)
+cpu_log_file = STAT(cpu_util_log)
+mem_cpu_log_file = STAT(mem_cpu_log)
 memca_stat = memcached()
 parsec_stat = parsec()
 # Set memcache PID  
@@ -320,7 +321,7 @@ def check_container_log(container_id):
 
 def spin_up_container(img_name, core_id, container_name, command):
     'This function is used to spin up containers'
-    print("start container",container_name)
+    print("start container %s at %d"%(container_name,int(round(time.time() * 1000))))
     container = client.containers.run(img_name, command,cpuset_cpus=core_id, name=container_name, auto_remove=False, detach=True)
     return container
 
@@ -337,6 +338,7 @@ while True:
         global_counter = 0
         # Update Memcache resource constraint
         memca_stat.cpu_util(interval=0.5)
+        memca_stat.mem_cpu_allocation_logger(mem_cpu_log_file)
         memca_stat.resource_set(parsec_stat)
         # Update PARSEC Containers accordingly
         parsec_stat.schedule_update()
