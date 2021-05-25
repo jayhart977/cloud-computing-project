@@ -169,10 +169,10 @@ class parsec(object):
                     self.C2_running_app = self.PARSEC_JOB_C2[0]
                     self.C2_container = spin_up_container(PARSEC_DICT[self.C2_running_app][0], "2-3", PARSEC_DICT[self.C2_running_app][1], PARSEC_DICT[self.C2_running_app][2])
 
-        else:
+        elif(~flag):
             if(self.C1_container):
                 self.C1_container.reload()
-            if len(self.C1_container.status == 'running'):
+            if(self.C1_container.status == 'running'):
                 self.C1_container.update(cpuset_cpus='2-3')
                 flag = 1
 
