@@ -67,9 +67,9 @@ client = docker.from_env()
 class memcached(object):
     def __init__(self):
         # This part defines scheduling strategies for memcached, please test and change accordingly
-        self.memca_lower_bound = 30
+        self.memca_c1_bound = 80
         self.memca_change_bound = 50
-        self.memca_upper_bound = 75
+        self.memca_c2_bound = 25
         self.memca_cpu_utilization_last = 0
         self.memca_cpu_utilization_new = 0
         self.memca_up_counter = 0
@@ -106,9 +106,9 @@ class memcached(object):
     
     def resource_set(self,parsec_stat):
         'This function is used to schedule memcache workload'
-        if (self.memca_cpu_utilization_new >= self.memca_upper_bound):
+        if (self.memca_cpu_utilization_new >= self.memca_c1_bound):
             # If cpu_util is larger than upper bound
-            global parsec_available_cpu,memca_need_more,parsec_more_flag
+            global parsec_available_cpu
             if (self.memca_used_cpu == 1):
                 if (parsec_stat.C1_container):
                     parsec_stat.C1_container.reload()
@@ -120,7 +120,7 @@ class memcached(object):
                 self.memca_used_cpu += 1
                 self.refresh()
 
-        elif (self.memca_cpu_utilization_new <= self.memca_lower_bound):
+        elif (self.memca_cpu_utilization_new <= self.memca_c2_bound):
             # If cpu_util is lower than lower bound
             if (self.memca_used_cpu == 2):
                 memcached_resource_set("0", self.pid)
@@ -128,7 +128,7 @@ class memcached(object):
                 self.memca_used_cpu -= 1
                 self.refresh()
 
-        elif ((self.memca_up_counter > self.memca_counter_thrd) and (self.memca_cpu_utilization_new >= self.memca_change_bound)):
+        #elif ((self.memca_up_counter > self.memca_counter_thrd) and (self.memca_cpu_utilization_new >= self.memca_change_bound)):
             # Up Counter reaches thre
             if (self.memca_used_cpu == 1):
                 parsec_stat.C1_container.reload()
@@ -140,7 +140,7 @@ class memcached(object):
                 self.memca_used_cpu += 1
                 self.refresh()
 
-        elif ((self.memca_down_counter > self.memca_counter_thrd) and (self.memca_cpu_utilization_new < self.memca_change_bound)):
+        #elif ((self.memca_down_counter > self.memca_counter_thrd) and (self.memca_cpu_utilization_new < self.memca_change_bound)):
             # Down counter reaches thre
             if (self.memca_used_cpu == 2):
                 memcached_resource_set("0", self.pid)
