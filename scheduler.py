@@ -110,9 +110,10 @@ class memcached(object):
             # If cpu_util is larger than upper bound
             global parsec_available_cpu,memca_need_more,parsec_more_flag
             if (self.memca_used_cpu == 1):
-                parsec_stat.C1_container.reload()
-                if (parsec_stat.C1_container.status == 'running'):
-                    parsec_stat.C1_container.pause()
+                if (~parsec_stat.C1_container):
+                    parsec_stat.C1_container.reload()
+                    if (parsec_stat.C1_container.status == 'running'):
+                        parsec_stat.C1_container.pause()
                 memcached_resource_set("0,1", self.pid)
                 parsec_available_cpu = 0
                 self.memca_used_cpu += 1
