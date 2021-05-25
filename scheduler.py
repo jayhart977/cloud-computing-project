@@ -198,6 +198,7 @@ class parsec(object):
             elif (self.C1_container.status == 'exited'):
                 # Remove corresponding app from C1_list
                 self.PARSEC_JOB_C1.remove(self.C1_running_app)
+                self.C1_running_app = " "
                 if(~parsec_available_cpu):
                     # If no spare cpu
                     self.C1_running_app = " "
@@ -213,7 +214,7 @@ class parsec(object):
                     # If there is a spare cpu
                     self.C1_container.unpause()
 
-                    
+
 
 # Define Logger class to obtain log file for this run
 run_start_time = time.localtime()
