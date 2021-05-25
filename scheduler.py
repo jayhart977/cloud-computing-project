@@ -183,7 +183,7 @@ class parsec(object):
             elif (self.C2_container.status == 'exited'):
                 # C2 container has finished
                 # First remove corresponding app in C2_list
-                print("container %s exited at %d"%(self.C1_running_app,int(round(time.time() * 1000))))
+                print("container %s exited at %d"%(self.C2_running_app,int(round(time.time() * 1000))))
                 self.PARSEC_JOB_C2.remove(self.C2_running_app)
                 
                 if (len(self.PARSEC_JOB_C2)):
