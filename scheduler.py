@@ -49,6 +49,7 @@ last_idle = 0
 last_total = 0
 global_counter = 0 # Used for scheduler interval
 parsec_available_cpu = 1 # Number of cpus that can be used by parsec jobs
+flag=0
 
 ## DICT follows the following convetion: ('image_name', 'container_name', 'command')
 PARSEC_DICT = {
@@ -104,11 +105,11 @@ class memcached(object):
         'This function is used to schedule memcache workload'
         if (self.memca_up_counter >= self.memca_counter_thrd):
             # If cpu_util is larger than upper bound
-            global parsec_available_cpu
+            global parsec_available_cpu,flag
             if (self.memca_used_cpu == 1):
                 if (parsec_stat.C1_container):
                     parsec_stat.C1_container.reload()
-                    if (parsec_stat.C1_container.status == 'running'):
+                    if (parsec_stat.C1_container.status == 'running' and ~flag):
                         parsec_stat.C1_container.pause()
                         print("pause container %s at %d"%(parsec_stat.C1_running_app,int(round(time.time() * 1000))))
                 memcached_resource_set("0,1", self.pid)
@@ -124,25 +125,6 @@ class memcached(object):
                 self.memca_used_cpu -= 1
                 self.refresh()
 
-        '''elif ((self.memca_up_counter > self.memca_counter_thrd) and (self.memca_cpu_utilization_new >= self.memca_change_bound)):
-            # Up Counter reaches thre
-            if (self.memca_used_cpu == 1):
-                parsec_stat.C1_container.reload()
-                if (parsec_stat.C1_container.status == 'running'):
-                    parsec_stat.C1_container.pause()
-                    print("pause container %s at %d"%(parsec_stat.C1_running_app,int(round(time.time() * 1000))))
-                memcached_resource_set("0,1", self.pid)
-                parsec_available_cpu = 0
-                self.memca_used_cpu += 1
-                self.refresh()
-
-        elif ((self.memca_down_counter > self.memca_counter_thrd) and (self.memca_cpu_utilization_new < self.memca_change_bound)):
-            # Down counter reaches thre
-            if (self.memca_used_cpu == 2):
-                memcached_resource_set("0", self.pid)
-                parsec_available_cpu = 1
-                self.memca_used_cpu -= 1
-                self.refresh()'''
             
     def refresh(self):
         self.memca_up_counter = 0
@@ -159,7 +141,7 @@ class parsec(object):
         self.C2_container = 0
     
     def schedule_update(self):
-        global parsec_available_cpu
+        global parsec_available_cpu,flag
         #print(self.PARSEC_JOB_C1)
         #print(self.PARSEC_JOB_C2)
 
@@ -187,7 +169,14 @@ class parsec(object):
                     self.C2_running_app = self.PARSEC_JOB_C2[0]
                     self.C2_container = spin_up_container(PARSEC_DICT[self.C2_running_app][0], "2-3", PARSEC_DICT[self.C2_running_app][1], PARSEC_DICT[self.C2_running_app][2])
 
-            # Now check the status of containers inside C1_list
+        else:
+            if(self.C1_container):
+                self.C1_container.reload()
+            if len(self.C1_container.status == 'running'):
+                self.C1_container.update(cpuset_cpus='2-3')
+                flag = 1
+
+        # Now check the status of containers inside C1_list
         if len(self.PARSEC_JOB_C1):
             if (self.C1_running_app == " "):
                 # Check whether we can spawn a new C1 app or not
