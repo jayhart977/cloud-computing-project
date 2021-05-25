@@ -68,15 +68,13 @@ class memcached(object):
     def __init__(self):
         # This part defines scheduling strategies for memcached, please test and change accordingly
         self.memca_lower_bound = 30
-        self.memca_change_bound = 50
+
         self.memca_upper_bound = 80
         self.memca_cpu_utilization_last = 0
         self.memca_cpu_utilization_new = 0
         self.memca_up_counter = 0
         self.memca_down_counter = 0
-        self.memca_down_add_thr = 5
-        self.memca_up_add_thr = 5
-        self.memca_counter_thrd = 3
+        self.memca_counter_thrd = 2
         self.memca_used_cpu = 1
         self.pid = os.popen("pidof memcached").read()
     
@@ -91,22 +89,21 @@ class memcached(object):
         cpu_log_file.write(str(int(round(time.time() * 1000))))
         cpu_log_file.write(str(cpu_util_list))
         self.memca_cpu_utilization_new = temp / self.memca_used_cpu
-        diff = self.memca_cpu_utilization_new - self.memca_cpu_utilization_last
         # Counter value change
-        if (diff > 0):
-            if (diff > self.memca_up_add_thr):
-                self.memca_up_counter += 1
-                if (self.memca_down_counter >= 1):
-                    self.memca_down_counter -= 1
-        elif (diff < 0):
-            if (abs(diff) > self.memca_down_add_thr):
-                self.memca_down_counter += 1
-                if (self.memca_up_counter >= 1):
-                    self.memca_up_counter -= 1
+        if (self.memca_cpu_utilization_new > self.memca_upper_bound):
+            self.memca_up_counter += 1
+            self.memca_down_counter = 0
+
+        elif (self.memca_cpu_utilization_new < self.memca_lower_bound):
+            self.memca_down_counter += 1
+            self.memca_up_counter = 0
+        else:
+            self.memca_up_counter = 0
+            self.memca_down_counter = 0
     
     def resource_set(self,parsec_stat):
         'This function is used to schedule memcache workload'
-        if (self.memca_cpu_utilization_new >= self.memca_upper_bound):
+        if (self.memca_up_counter >= self.memca_counter_thrd):
             # If cpu_util is larger than upper bound
             global parsec_available_cpu
             if (self.memca_used_cpu == 1):
@@ -120,7 +117,7 @@ class memcached(object):
                 self.memca_used_cpu += 1
                 self.refresh()
 
-        elif (self.memca_cpu_utilization_new <= self.memca_lower_bound):
+        elif (self.memca_down_counter >= self.memca_counter_thrd):
             # If cpu_util is lower than lower bound
             if (self.memca_used_cpu == 2):
                 memcached_resource_set("0", self.pid)
