@@ -127,8 +127,8 @@ class memcached(object):
                 parsec_available_cpu = 1
                 self.memca_used_cpu -= 1
                 self.refresh()
-
-        #elif ((self.memca_up_counter > self.memca_counter_thrd) and (self.memca_cpu_utilization_new >= self.memca_change_bound)):
+'''
+        elif ((self.memca_up_counter > self.memca_counter_thrd) and (self.memca_cpu_utilization_new >= self.memca_change_bound)):
             # Up Counter reaches thre
             if (self.memca_used_cpu == 1):
                 parsec_stat.C1_container.reload()
@@ -140,14 +140,14 @@ class memcached(object):
                 self.memca_used_cpu += 1
                 self.refresh()
 
-        #elif ((self.memca_down_counter > self.memca_counter_thrd) and (self.memca_cpu_utilization_new < self.memca_change_bound)):
+        elif ((self.memca_down_counter > self.memca_counter_thrd) and (self.memca_cpu_utilization_new < self.memca_change_bound)):
             # Down counter reaches thre
             if (self.memca_used_cpu == 2):
                 memcached_resource_set("0", self.pid)
                 parsec_available_cpu = 1
                 self.memca_used_cpu -= 1
                 self.refresh()
-            
+'''            
     def refresh(self):
         self.memca_up_counter = 0
         self.memca_down_counter = 0
