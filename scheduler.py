@@ -110,7 +110,7 @@ class memcached(object):
             # If cpu_util is larger than upper bound
             global parsec_available_cpu,memca_need_more,parsec_more_flag
             if (self.memca_used_cpu == 1):
-                if (~parsec_stat.C1_container):
+                if (parsec_stat.C1_container):
                     parsec_stat.C1_container.reload()
                     if (parsec_stat.C1_container.status == 'running'):
                         parsec_stat.C1_container.pause()
@@ -172,7 +172,7 @@ class parsec(object):
             self.C2_container.reload()
             print(self.C2_container.status)
 
-        if (len(self.PARSEC_JOB_C1) and len(self.PARSEC_JOB_C2)):
+        if (len(self.PARSEC_JOB_C2)):
             # If C1 and C2 list are not empty first check C2
             if (self.C2_running_app == " "):
                 self.C2_running_app = self.PARSEC_JOB_C2[0]
@@ -189,6 +189,7 @@ class parsec(object):
 
 
             # Now check the status of containers inside C1_list
+        if len(self.PARSEC_JOB_C1):
             if (self.C1_running_app == " "):
                 # Check whether we can spawn a new C1 app or not
                 if (parsec_available_cpu):
@@ -199,12 +200,10 @@ class parsec(object):
             elif (self.C1_container.status == 'exited'):
                 # Remove corresponding app from C1_list
                 self.PARSEC_JOB_C1.remove(self.C1_running_app)
-                self.C1_running_app = " "
                 if(~parsec_available_cpu):
                     # If no spare cpu
                     self.C1_running_app = " "
-                    self.C1_container = 1
-                elif (len(self.PARSEC_JOB_C1)):
+                else:
                     # Spawn a new app on cpu1 if possible
                     self.C1_running_app = self.PARSEC_JOB_C1[0]
                     self.C1_container = spin_up_container(PARSEC_DICT[self.C1_running_app][0], "1", PARSEC_DICT[self.C1_running_app][1], PARSEC_DICT[self.C1_running_app][2])
