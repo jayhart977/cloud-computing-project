@@ -67,8 +67,7 @@ client = docker.from_env()
 class memcached(object):
     def __init__(self):
         # This part defines scheduling strategies for memcached, please test and change accordingly
-        self.memca_lower_bound = 30
-
+        self.memca_lower_bound = 35
         self.memca_upper_bound = 80
         self.memca_cpu_utilization_last = 0
         self.memca_cpu_utilization_new = 0
@@ -187,7 +186,6 @@ class parsec(object):
                     # Still some app remained in C2_list, spawn one of them
                     self.C2_running_app = self.PARSEC_JOB_C2[0]
                     self.C2_container = spin_up_container(PARSEC_DICT[self.C2_running_app][0], "2-3", PARSEC_DICT[self.C2_running_app][1], PARSEC_DICT[self.C2_running_app][2])
-
 
             # Now check the status of containers inside C1_list
         if len(self.PARSEC_JOB_C1):
