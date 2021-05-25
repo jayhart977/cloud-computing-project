@@ -148,9 +148,9 @@ class memcached(object):
                 self.memca_used_cpu -= 1
                 self.refresh()
 '''            
-    def refresh(self):
-        self.memca_up_counter = 0
-        self.memca_down_counter = 0
+        def refresh(self):
+            self.memca_up_counter = 0
+            self.memca_down_counter = 0
 
 ### PARSEC
 class parsec(object):
