@@ -67,9 +67,9 @@ client = docker.from_env()
 class memcached(object):
     def __init__(self):
         # This part defines scheduling strategies for memcached, please test and change accordingly
-        self.memca_c1_bound = 80
+        self.memca_lower_bound = 30
         self.memca_change_bound = 50
-        self.memca_c2_bound = 25
+        self.memca_upper_bound = 80
         self.memca_cpu_utilization_last = 0
         self.memca_cpu_utilization_new = 0
         self.memca_up_counter = 0
@@ -106,7 +106,7 @@ class memcached(object):
     
     def resource_set(self,parsec_stat):
         'This function is used to schedule memcache workload'
-        if (self.memca_cpu_utilization_new >= self.memca_c1_bound):
+        if (self.memca_cpu_utilization_new >= self.memca_upper_bound):
             # If cpu_util is larger than upper bound
             global parsec_available_cpu
             if (self.memca_used_cpu == 1):
@@ -120,7 +120,7 @@ class memcached(object):
                 self.memca_used_cpu += 1
                 self.refresh()
 
-        elif (self.memca_cpu_utilization_new <= self.memca_c2_bound):
+        elif (self.memca_cpu_utilization_new <= self.memca_lower_bound):
             # If cpu_util is lower than lower bound
             if (self.memca_used_cpu == 2):
                 memcached_resource_set("0", self.pid)
@@ -128,7 +128,7 @@ class memcached(object):
                 self.memca_used_cpu -= 1
                 self.refresh()
 
-        '''elif ((self.memca_up_counter > self.memca_counter_thrd) and (self.memca_cpu_utilization_new >= self.memca_change_bound)):
+        elif ((self.memca_up_counter > self.memca_counter_thrd) and (self.memca_cpu_utilization_new >= self.memca_change_bound)):
             # Up Counter reaches thre
             if (self.memca_used_cpu == 1):
                 parsec_stat.C1_container.reload()
@@ -146,7 +146,7 @@ class memcached(object):
                 memcached_resource_set("0", self.pid)
                 parsec_available_cpu = 1
                 self.memca_used_cpu -= 1
-                self.refresh() '''
+                self.refresh()
             
     def refresh(self):
         self.memca_up_counter = 0
@@ -155,8 +155,8 @@ class memcached(object):
 ### PARSEC
 class parsec(object):
     def __init__(self):
-        self.PARSEC_JOB_C1 = ["dedup", "fft", "canneal"]
-        self.PARSEC_JOB_C2 = ["blackscholes", "freqmine","ferret"]
+        self.PARSEC_JOB_C1 = ["dedup", "fft", "blackscholes"]
+        self.PARSEC_JOB_C2 = ["canneal","freqmine","ferret"]
         self.C2_running_app = " "
         self.C1_running_app = " "
         self.C1_container = 0
