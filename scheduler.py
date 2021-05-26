@@ -109,7 +109,7 @@ class memcached(object):
             if (self.memca_used_cpu == 1):
                 if (parsec_stat.C1_container):
                     parsec_stat.C1_container.reload()
-                    if (parsec_stat.C1_container.status == 'running' and ~flag):
+                    if (parsec_stat.C1_container.status == 'running' and flag == 0):
                         parsec_stat.C1_container.pause()
                         print("pause container %s at %d"%(parsec_stat.C1_running_app,int(round(time.time() * 1000))))
                 memcached_resource_set("0,1", self.pid)
@@ -167,7 +167,7 @@ class parsec(object):
                     self.C2_running_app = self.PARSEC_JOB_C2[0]
                     self.C2_container = spin_up_container(PARSEC_DICT[self.C2_running_app][0], "2-3", PARSEC_DICT[self.C2_running_app][1], PARSEC_DICT[self.C2_running_app][2])
 
-        elif(~flag):
+        elif(flag == 0):
             if(self.C1_container):
                 self.C1_container.reload()
             if(self.C1_container.status == 'running'):
