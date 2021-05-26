@@ -153,7 +153,6 @@ class parsec(object):
             #print(self.C2_container.status)
 
         if (len(self.PARSEC_JOB_C2)):
-            # If C1 and C2 list are not empty first check C2
             if (self.C2_running_app == " "):
                 self.C2_running_app = self.PARSEC_JOB_C2[0]
                 self.C2_container = spin_up_container(PARSEC_DICT[self.C2_running_app][0], "2-3", PARSEC_DICT[self.C2_running_app][1], PARSEC_DICT[self.C2_running_app][2])
@@ -163,7 +162,6 @@ class parsec(object):
                 # First remove corresponding app in C2_list
                 print("container %s exited at %d"%(self.C2_running_app,int(round(time.time() * 1000))))
                 self.PARSEC_JOB_C2.remove(self.C2_running_app)
-                
                 if (len(self.PARSEC_JOB_C2)):
                     # Still some app remained in C2_list, spawn one of them
                     self.C2_running_app = self.PARSEC_JOB_C2[0]
@@ -173,6 +171,7 @@ class parsec(object):
             if(self.C1_container):
                 self.C1_container.reload()
             if(self.C1_container.status == 'running'):
+                print("update container %s at %d"%(self.C1_container,int(round(time.time() * 1000))))
                 self.C1_container.update(cpuset_cpus='2-3')
                 flag = 1
 
